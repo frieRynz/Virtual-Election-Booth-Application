@@ -75,15 +75,49 @@ def register():
             
     except ValueError:
         return jsonify({"error": "Expected YYYY-MM-DD."}), 400
-
+        
     try:
-        with con.cursor() as cursor:
-            cursor.execute("SELECT National_ID FROM Citizen_list WHERE National_ID = %s", (national_id,))
-            if cursor.fetchone():
-                return jsonify({"error": "National ID is already registered."}), 409
-    except mysql.connector.Error as err:
-        return jsonify({"error": f"Database check error: {err}"}), 500
+        if not con.is_connected():
+            con.reconnect()
+            
+        with con.cursor(dictionary=True) as cursor:
+            check_query = "SELECT has_regis FROM Citizen_list WHERE National_ID = %s"
+            cursor.execute(check_query, (national_id,))
+            rigister_status = cursor.fetchone()
 
+            if not rigister_status:
+                return jsonify({"error": "Voter not found"}), 404
+
+            if rigister_status['has_regis'] == 'Y':
+
+                if national_id in temp_users:
+                    user_entry = temp_users[national_id]
+                    if datetime.now() <= user_entry['timestamp'] + timedelta(minutes = timeout_min):
+                        return jsonify({
+                            "error": "Verification pending.",
+                            "message": "OTP has already been sent and is still valid."
+                        }), 403
+                
+                return jsonify({"error": "This National ID has already register."}), 403
+
+            update_register_query = "UPDATE Citizen_list SET has_regis = 'Y' WHERE National_ID = %s"
+            cursor.execute(update_register_query, (national_id,))
+
+        con.commit()
+
+    except mysql.connector.Error as err:
+        con.rollback()
+        print(f"Database error during registration: {err}")
+        return jsonify({
+            "error": "Failed to update registration status.",
+            "details": str(err)
+        }), 500
+
+    except Exception as e:
+        con.rollback() 
+        print(f"An unexpected error occurred: {e}")
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+    
     otp = genOTP()
     
     temp_users[national_id] = {'data': data, 'otp': otp, 'timestamp': datetime.now()}
@@ -93,8 +127,81 @@ def register():
     if otp_success:
         return jsonify({"message": "OTP sent successfully.", "id": national_id, "otp_sent": True}), 200
     else:
+        try:
+            with con.cursor() as cursor:
+                rollback_query = "UPDATE Citizen_list SET has_regis = 'N' WHERE National_ID = %s"
+                cursor.execute(rollback_query, (national_id,))
+            con.commit()
+        except mysql.connector.Error as rollback_err:
+            print(f"Failed to rollback has_regis: {rollback_err}")
+
         del temp_users[national_id]
         return jsonify({"error": "Failed to send OTP.", "otp_sent": False}), 500
+
+
+@app.route('/resend_otp', methods=['POST'])
+def resend_otp():
+    data = request.get_json()
+
+    if not data or 'National_ID' not in data:
+        return jsonify({"error": "Missing National_ID"}), 400
+
+    national_id = data['National_ID']
+
+    if national_id not in temp_users:
+        try:
+            if not con.is_connected():
+                con.reconnect()
+            
+            with con.cursor(dictionary=True) as cursor:
+                check_query = "SELECT Phone_no, has_regis FROM Citizen_list WHERE National_ID = %s"
+                cursor.execute(check_query, (national_id,))
+                voter_info = cursor.fetchone()
+
+                if not voter_info:
+                    return jsonify({"error": "Voter not found in Citizen list."}), 404
+
+                if voter_info['has_regis'] != 'Y':
+                    return jsonify({"error": "Registration process not started."}), 400
+
+                update_regis_query = "UPDATE Citizen_list SET has_regis = 'N' WHERE National_ID = %s"
+                cursor.execute(update_regis_query, (national_id,))
+            con.commit()
+            return jsonify({
+                "error": "Registration session expired.",
+                "message": "Please restart the registration."
+            }), 410
+
+        except mysql.connector.Error as err:
+            con.rollback()
+            return jsonify({"error": "Database error during cleanup check.", "details": str(err)}), 500
+        except Exception as e:
+            return jsonify({"error": "An unexpected error occurred during resend check.", "details": str(e)}), 500
+
+    user_entry = temp_users[national_id]
+    phone_no = user_entry['data']['Phone_no']
+    timestamp = user_entry['timestamp']
+
+    if datetime.now() <= timestamp + timedelta(minutes = timeout_min):
+        return jsonify({
+            "error": "OTP is still valid.",
+            "message": "Please wait for the current OTP to expire before requesting a new one."
+        }), 429
+
+    new_otp = genOTP()
+    
+    otp_success = sentOTP(phone_no, new_otp)
+
+    if otp_success:
+        temp_users[national_id] = {
+            'data': user_entry['data'], 
+            'otp': new_otp, 
+            'timestamp': datetime.now()
+        }
+        return jsonify({"message": "New OTP sent successfully.", "id": national_id, "otp_sent": True}), 200
+    else:
+        return jsonify({"error": "Failed to send new OTP.", "otp_sent": False}), 500
+
 
 @app.route('/verify_otp', methods = ['POST'])
 def verify_otp():
@@ -107,7 +214,28 @@ def verify_otp():
     submitted_otp = data['otp']
 
     if national_id not in temp_users:
-        return jsonify({"error": "No registration."}), 404
+        try:
+            if not con.is_connected():
+                con.reconnect()
+
+            with con.cursor(dictionary=True) as cursor:
+                check_query = "SELECT has_regis FROM Citizen_list WHERE National_ID = %s"
+                cursor.execute(check_query, (national_id,))
+                voter_info = cursor.fetchone()
+                
+                if voter_info and voter_info['has_regis'] == 'Y':
+
+                    update_regis_query = "UPDATE Citizen_list SET has_regis = 'N' WHERE National_ID = %s"
+                    cursor.execute(update_regis_query, (national_id,))
+                    con.commit()
+
+            return jsonify({"error": "Registration session expired/not found."}), 404
+
+        except mysql.connector.Error as err:
+            con.rollback()
+            print(f"Database error during verify check: {err}")
+            return jsonify({"error": "No registration found or session expired."}), 404
+
 
     user_entry = temp_users[national_id]
     
@@ -117,30 +245,20 @@ def verify_otp():
 
     if datetime.now() > timestamp + timedelta(minutes = timeout_min):
         del temp_users[national_id]
-        return jsonify({"error": "OTP has expired."}), 408
+        return jsonify({
+            "error": "OTP has expired.",
+            "message": "Please request a new OTP using /resend_otp."
+        }), 408
     
     if submitted_otp != stored_otp:
         return jsonify({"error": "Invalid OTP."}), 401
 
-    try:
-        with con.cursor() as cursor:
-            insert_query = "INSERT INTO Citizen_list (National_ID, Phone_no, DOB) VALUES (%s, %s, %s)"
-            cursor.execute(insert_query, (stored_data['National_ID'], stored_data['Phone_no'], stored_data['DOB']))
-
-        con.commit()
+    del temp_users[national_id]
         
-        del temp_users[national_id]
-        
-        return jsonify({
-            "message": "Verification successful.", 
-            "id": national_id
-            }), 201
-        
-    except mysql.connector.Error as err:
-        con.rollback()
-        return jsonify({
-            "error": f"Database error: {err}"
-            }), 500
+    return jsonify({
+        "message": "Verification successful.", 
+        "id": national_id
+        }), 201
 
 @app.route('/get_user_id', methods=['GET'])
 def get_user_id():
@@ -149,12 +267,15 @@ def get_user_id():
     if not national_id:
         return jsonify({
             "error": "Missing required parameter",
-            "details": "The 'national_id' query parameter must be provided (e.g., /get_user_id?national_id=1234567890)."
+            "details": "Missing required parameter."
         }), 400
     
     sql_query = "SELECT User_ID FROM virtual_elec_booth.Citizen_list WHERE National_ID = %s;"
     
     try:
+        if not con.is_connected():
+            con.reconnect()
+            
         with con.cursor() as cursor:
             cursor.execute(sql_query, (national_id,))
             result = cursor.fetchone()
@@ -218,6 +339,7 @@ def createAcc():
     
     try:
         with con.cursor() as cursor:
+
             insert_query = "INSERT INTO Registered_voters (username, encrypted_pass, DOB, UserID) VALUES (%s, %s, %s, %s)"
             cursor.execute(insert_query, (username, hashPWD(password), user_dob, userid))
 
