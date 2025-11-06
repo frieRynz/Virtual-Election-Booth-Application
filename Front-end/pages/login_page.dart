@@ -1,105 +1,92 @@
 import 'package:flutter/material.dart';
-import '/services/auth_service.dart';
-import '/pages/voting_page.dart';
+import 'package:app_pages/pages/Ineligible_page.dart';
+import 'package:app_pages/pages/voting_page.dart';
+
+
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  _LoginState createState() => _LoginState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+class _LoginState extends State<LoginPage> {
 
-  final AuthService _authService = AuthService();
+  final TextEditingController _username = TextEditingController();
+  final TextEditingController _password = TextEditingController();
 
-  bool _isLoading = false;
-  String _errorMessage = '';
-
-  void _handleLogin() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = '';
-    });
-
-    try {
-      String username = _usernameController.text;
-      String password = _passwordController.text;
-
-      Map<String, dynamic> responseData = await _authService.login(username, password);
-
-      int voterId = responseData['voter_ID'];
-
-      if (mounted) { 
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => VotingPage(voterId: voterId)),
-        );
-      }
-
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
+  String worngUsername = "admin";
+  String worngPassword = "admin123";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(
+      title: Text('Login page'),
+      centerTitle: true,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // This is your old username text field
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
+          
+          Center(
+            child:Container(
+              constraints: BoxConstraints(maxWidth: 300),
+              child:TextField(
+                  controller: _username,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+            )
+          ),
+            
+            SizedBox(height: 50),
+            
+            Center(
+              child:Container(
+                constraints: BoxConstraints(maxWidth: 300),
+                child:TextField(
+                    controller: _password,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+              )
             ),
-            const SizedBox(height: 16),
-            // This is your old password text field
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 32),
-            // This part is new: shows a spinner OR the button
-            if (_isLoading)
-              const CircularProgressIndicator()
-            else
-              ElevatedButton(
-                onPressed: _handleLogin, // Calls the new API function
-                style: ElevatedButton.styleFrom(
+            
+            SizedBox(height: 60),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  if(_username.text == worngUsername && _password.text == worngPassword){
+                      Navigator.push(context,
+                      MaterialPageRoute(builder: (context)=>
+                      IneligiblePage()));
+                  }else {
+                      Navigator.push(context,
+                      MaterialPageRoute(builder: (context)=>
+                      VotingPage()));
+                  }
+                  },
+                  style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 32.0),
                 ),
-                child: const Text(
-                  'Login', 
-                  style: TextStyle(fontSize: 18),
-                ),
+                child: 
+                Text('Login',
+                      style: TextStyle(
+                        fontSize: 18,
+                      )
+                      ),
               ),
-            // This is new: shows the error message
-            if (_errorMessage.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Text(
-                  _errorMessage,
-                  style: const TextStyle(color: Colors.red),
-                ),
-              ),
+            ),
           ],
         ),
       ),
