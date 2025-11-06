@@ -8,8 +8,10 @@ VALUES
     
 INSERT INTO Candidate_list (name, img_path, party)
 VALUES
-    ('Prayat MakMak', 'akgbrviongveimg.png', 'Moving Backward'),
-	('Pitak Salanghe', 'osjaokegneauevi.png', 'Sleeping In Class')
+    ('Bulbasuar', 'akgbrviongveimg.png', 'Leechie'),
+	('Charmander', 'osjaokegneauevi.png', 'Flamie'),
+	('Squirtle', 'osjaokegneauevi.png', 'Watarr'),
+	('Pikachu', 'osjaokegneauevi.png', 'Electricie'),
     ;
     
 
