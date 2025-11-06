@@ -6,7 +6,7 @@ CREATE TABLE Citizen_list(
     National_ID CHAR(13) NOT NULL,
     Phone_no CHAR(10) NOT NULL,
     DOB DATE NOT NULL,  
-    has_regis CHAR(1) DEFAULT 'N' CHECK(has_regis IN ('Y', 'N')) not null ,
+    has_regis CHAR(1) DEFAULT 'N' CHECK(has_regis IN ('Y', 'N')) NOT NULL,
     PRIMARY KEY (User_ID)
 );
 
