@@ -129,51 +129,63 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _nat_IDController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(13),
-                FilteringTextInputFormatter.digitsOnly,
-              ],
-              decoration: const InputDecoration(
-                labelText: 'Enter your National ID (13 digits)',
-                border: OutlineInputBorder(),
-                counterText: '',
-              ),
-              maxLength: 13,
-            ),
-
-            const SizedBox(height: 50),
-
-            TextField(
-              controller: _phoneNoController,
-              keyboardType: TextInputType.phone,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(10),
-                FilteringTextInputFormatter.digitsOnly,
-              ],
-              decoration: const InputDecoration(
-                labelText: 'Enter your Phone Number (10 digits)',
-                border: OutlineInputBorder(),
-                counterText: '',
-              ),
-              maxLength: 10,
-            ),
-
-            const SizedBox(height: 50),
-
-            TextField(
-              controller: _dob,
-              readOnly: true,
-              onTap: () => _selectDate(context),
-              decoration: const InputDecoration(
-                labelText: 'Enter your Birth Date (YYYY-MM-DD)',
-                border: OutlineInputBorder(),
+            Center(
+              child:Container(
+              constraints: BoxConstraints(maxWidth: 300),
+                child: TextField(
+                  controller: _nat_IDController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(13),
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  decoration: const InputDecoration(
+                    labelText: 'Enter your National ID (13 digits)',
+                    border: OutlineInputBorder(),
+                    counterText: '',
+                  ),
+                  maxLength: 13,
+                ),
               ),
             ),
             
 
+            const SizedBox(height: 50),
+
+            Center(
+              child:Container(
+              constraints: BoxConstraints(maxWidth: 300),
+                child:TextField(
+                  controller: _phoneNoController,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(10),
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  decoration: const InputDecoration(
+                    labelText: 'Enter your Phone Number (10 digits)',
+                    border: OutlineInputBorder(),
+                    counterText: '',
+                  ),
+                  maxLength: 10,
+            ),),),
+            
+
+            const SizedBox(height: 50),
+            Center(
+              child:Container(
+              constraints: BoxConstraints(maxWidth: 300),
+                child:TextField(
+                  controller: _dob,
+                  readOnly: true,
+                  onTap: () => _selectDate(context),
+                  decoration: const InputDecoration(
+                    labelText: 'Enter your Birth Date (YYYY-MM-DD)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                ),),
+            
             const SizedBox(height: 60),
             Center(
               child: ElevatedButton(
