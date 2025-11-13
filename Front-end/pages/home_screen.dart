@@ -17,9 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _phoneNoController = TextEditingController();
   final TextEditingController _dob = TextEditingController(); 
 
-  // If running Flask on your computer and testing on Android Emulator:
-  // final String api = "http://10.0.2.2:5000"; 
-  // If testing on iOS Simulator or Web:
+  // Use http://127.0.0.1:5000 for web or http://10.0.2.2:5000 for Android
   final String api = "http://127.0.0.1:5000"; 
 
   void _showAlert(String title, String message) {

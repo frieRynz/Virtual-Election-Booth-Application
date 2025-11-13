@@ -14,8 +14,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Virtual Electiob booth application',
-      theme: ThemeData(primarySwatch: Colors.blue), // Global theme
-      home: LoginOrRegister(), // Set eiei as the main page
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: LoginOrRegister(),
     );
   }
 }

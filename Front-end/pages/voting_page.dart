@@ -58,6 +58,26 @@ class _VotingPageState extends State<VotingPage> {
       setState(() {
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
         _isLoading = false;
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('This user has already voted'),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => LoginOrRegister()),
+                      (route) => false,
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        );
       });
     }
   }
@@ -135,25 +155,23 @@ class _VotingPageState extends State<VotingPage> {
                     ),
                     const SizedBox(height: 10),
                     _selectCandidateButton('Candidate No.2', is2Checked,
-                                            (val) {
-                                              setState(() {
-                                                      is2Checked = val!;
-                                                      if(is2Checked){
-                                                        is1Checked = false;
-                                                        is3Checked = false;
-                                                        is4Checked = false;
-                                                        _selectedCandidateId = 2;
-                                                      }
-                                                      } 
-                                                    );
-                                              }),
-                    ],
-                  ),
-
-                ],
-              ),
-
-              const SizedBox(height: 20),
+                    (val) {
+                      setState(() {
+                        is2Checked = val!;
+                        if(is2Checked){
+                          is1Checked = false;
+                          is3Checked = false;
+                          is4Checked = false;
+                          _selectedCandidateId = 2;
+                          }
+                      }
+                      );
+                    }),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

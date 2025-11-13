@@ -21,9 +21,7 @@ class _OTPScreenState extends State<OTPScreen> {
   final TextEditingController _otpCred3 = TextEditingController();
   final TextEditingController _otpCred4 = TextEditingController();
 
-  // If running Flask on your computer and testing on Android Emulator:
-  // final String api = "http://10.0.2.2:5000"; 
-  // If testing on iOS Simulator or Web:
+  // Use http://127.0.0.1:5000 for web or http://10.0.2.2:5000 for Android
   final String api = "http://127.0.0.1:5000"; 
 
   Timer? _timer;
