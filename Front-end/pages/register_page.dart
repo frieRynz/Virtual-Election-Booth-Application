@@ -20,9 +20,9 @@ class _RegisterState extends State<RegisterPage> {
   final TextEditingController _confirmpassword = TextEditingController();
 
   // If running Flask on your computer and testing on Android Emulator:
-  final String api = "http://10.0.2.2:5000"; 
+  // final String api = "http://10.0.2.2:5000"; 
   // If testing on iOS Simulator or Web:
-  // final String api = "http://127.0.0.1:5000"; 
+  final String api = "http://127.0.0.1:5000"; 
 
   Future<void> _showAlert(String title, String message) async {
     return showDialog<void>(
@@ -122,6 +122,7 @@ class _RegisterState extends State<RegisterPage> {
             TextField(
               controller: _password,
               keyboardType: TextInputType.text,
+              obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Password',
                 border: OutlineInputBorder(),
@@ -133,6 +134,7 @@ class _RegisterState extends State<RegisterPage> {
             TextField(
               controller: _confirmpassword,
               keyboardType: TextInputType.text,
+              obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
                 border: OutlineInputBorder(),

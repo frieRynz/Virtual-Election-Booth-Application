@@ -4,7 +4,7 @@ import '/services/storage_service.dart';
 
 class AuthService {
   // Use http://127.0.0.1:5000 for web/iOS or http://10.0.2.2:5000 for Android
-  final String _baseUrl = "http://10.0.2.2:5000"; 
+  final String _baseUrl = "http://127.0.0.1:5000"; 
   
   final StorageService _storageService = StorageService();
 
