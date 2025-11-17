@@ -138,7 +138,6 @@ def register():
         del temp_users[national_id]
         return jsonify({"error": "Failed to send OTP.", "otp_sent": False}), 500
 
-
 @app.route('/resend_otp', methods=['POST'])
 def resend_otp():
     data = request.get_json()
@@ -201,7 +200,6 @@ def resend_otp():
         return jsonify({"message": "New OTP sent successfully.", "id": national_id, "otp_sent": True}), 200
     else:
         return jsonify({"error": "Failed to send new OTP.", "otp_sent": False}), 500
-
 
 @app.route('/verify_otp', methods = ['POST'])
 def verify_otp():
@@ -366,7 +364,7 @@ def vote():
         return jsonify({"error": "No Candidate has been chosen"}), 400
 
     candidate_ID = data['Candidate_ID']
-
+    
     try:
         if not con.is_connected():
             con.reconnect()
@@ -436,7 +434,7 @@ def login():
         if not bcrypt.check_password_hash(stored_hash, password):
             return jsonify({"error": "Invalid username or password"}), 401
             
-        access_token = create_access_token(identity=user['voter_ID'])
+        access_token = create_access_token(identity=str(user['voter_ID']))
         
         return jsonify({
             "message": "Login successful.",
