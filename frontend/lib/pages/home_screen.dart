@@ -15,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final TextEditingController _nat_IDController = TextEditingController();
   final TextEditingController _phoneNoController = TextEditingController();
-  final TextEditingController _dob = TextEditingController(); 
+  // final TextEditingController _dob = TextEditingController(); 
 
   // If running Flask on your computer and testing on Android Emulator:
   // final String api = "http://10.0.2.2:5000"; 
@@ -38,30 +38,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      helpText: 'Select Date of Birth',
-      errorFormatText: 'Enter valid date',
-      errorInvalidText: 'Enter date in valid range',
-    );
-    
-    if (picked != null) {
-      setState(() {
-        _dob.text = "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-      });
-    }
-  }
 
   Future<void> _registerUser() async {
     final nationalId = _nat_IDController.text.trim();
     final phoneNo = _phoneNoController.text.trim();
-    final dob = _dob.text.trim();
+    // final dob = _dob.text.trim();
 
-    if (nationalId.isEmpty || phoneNo.isEmpty || dob.isEmpty) {
+    if (nationalId.isEmpty || phoneNo.isEmpty) {
       _showAlert('Validation Error', 'Please ensure all fields are filled.');
       return;
     }
@@ -76,11 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    final dobRegex = RegExp(r'^\d{4}-\d{2}-\d{2}$');
-    if (!dobRegex.hasMatch(dob)) {
-      _showAlert('Validation Error', 'Date of Birth must be selected in YYYY-MM-DD format.');
-      return;
-    }
 
     try {
       final response = await http.post(
@@ -91,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
         body: jsonEncode(<String, String>{
           'National_ID': nationalId,
           'Phone_no': phoneNo,
-          'DOB': dob,
+          // 'DOB': dob,
         }),
       );
 
@@ -163,15 +141,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 50),
 
-            TextField(
-              controller: _dob,
-              readOnly: true,
-              onTap: () => _selectDate(context),
-              decoration: const InputDecoration(
-                labelText: 'Enter your Birth Date (YYYY-MM-DD)',
-                border: OutlineInputBorder(),
-              ),
-            ),
             
 
             const SizedBox(height: 60),

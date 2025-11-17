@@ -310,27 +310,7 @@ class _OTPScreenState extends State<OTPScreen> {
               ),
             ),
             SizedBox(height: 10),
-            Center(
-              child: Text.rich(
-                TextSpan(
-                  text: "Didn't get the code? ",
-                  style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-                  children: [
-                    TextSpan(
-                      text: 'Resend',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: _isResendEnabled ? Colors.blue : Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      recognizer: _isResendEnabled
-                          ? (TapGestureRecognizer()..onTap = _resendCode)
-                          : null,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            
             SizedBox(height: 50),
 
             Center(

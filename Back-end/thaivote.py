@@ -58,47 +58,48 @@ def sentOTP(phoneNUM, otp_code):
 def register():
     data = request.get_json()
 
-    if not data or not all(k in data for k in ['National_ID', 'Phone_no', 'DOB']):
+    if not data or not all(k in data for k in ['National_ID', 'Phone_no']):
         return jsonify({"error": "Missing Information"}), 400
         
     national_id = data['National_ID']
     phone_no = data['Phone_no']
-    dob = data['DOB']
-    try:
-        dobb = datetime.strptime(dob, '%Y-%m-%d').date()
-        today = datetime.now().date()
-
-        age = today.year - dobb.year - ((today.month, today.day) < (dobb.month, dobb.day))
-        
-        if age < 18:
-            return jsonify({"error": "Can not register due to age restriction. Users must be 18 or older."}), 403
-            
-    except ValueError:
-        return jsonify({"error": "Expected YYYY-MM-DD."}), 400
         
     try:
-        if not con.is_connected():
-            con.reconnect()
-            
         with con.cursor(dictionary=True) as cursor:
-            check_query = "SELECT has_regis FROM Citizen_list WHERE National_ID = %s"
+            check_query = "SELECT has_regis, DOB FROM Citizen_list WHERE National_ID = %s"
             cursor.execute(check_query, (national_id,))
-            rigister_status = cursor.fetchone()
+            voter_info = cursor.fetchone()
 
-            if not rigister_status:
-                return jsonify({"error": "Voter not found"}), 404
+            if not voter_info:
+                return jsonify({"error": "Citizen not found"}), 404
 
-            if rigister_status['has_regis'] == 'Y':
-
+            dob_date = voter_info.get('DOB')
+            
+            if not dob_date:
+                return jsonify({"error": "Missing date of birth information for age verification"}), 500
+                
+            today = datetime.now().date()
+            
+            if isinstance(dob_date, datetime):
+                dob_date = dob_date.date()
+                
+            age = today.year - dob_date.year - (
+                (today.month, today.day) < (dob_date.month, dob_date.day)
+            )
+            
+            if age < 18:
+                return jsonify({"error": "Cannot register due to age restriction. Users must be 18 or older."}), 403
+            
+            if voter_info['has_regis'] == 'Y':
                 if national_id in temp_users:
                     user_entry = temp_users[national_id]
-                    if datetime.now() <= user_entry['timestamp'] + timedelta(minutes = timeout_min):
+                    if datetime.now() <= user_entry['timestamp'] + timedelta(minutes=timeout_min):
                         return jsonify({
                             "error": "Verification pending.",
                             "message": "OTP has already been sent and is still valid."
                         }), 403
                 
-                return jsonify({"error": "This National ID has already register."}), 403
+                return jsonify({"error": "This National ID has already registered."}), 403
 
             update_register_query = "UPDATE Citizen_list SET has_regis = 'Y' WHERE National_ID = %s"
             cursor.execute(update_register_query, (national_id,))
@@ -137,69 +138,6 @@ def register():
 
         del temp_users[national_id]
         return jsonify({"error": "Failed to send OTP.", "otp_sent": False}), 500
-
-@app.route('/resend_otp', methods=['POST'])
-def resend_otp():
-    data = request.get_json()
-
-    if not data or 'National_ID' not in data:
-        return jsonify({"error": "Missing National_ID"}), 400
-
-    national_id = data['National_ID']
-
-    if national_id not in temp_users:
-        try:
-            if not con.is_connected():
-                con.reconnect()
-            
-            with con.cursor(dictionary=True) as cursor:
-                check_query = "SELECT Phone_no, has_regis FROM Citizen_list WHERE National_ID = %s"
-                cursor.execute(check_query, (national_id,))
-                voter_info = cursor.fetchone()
-
-                if not voter_info:
-                    return jsonify({"error": "Voter not found in Citizen list."}), 404
-
-                if voter_info['has_regis'] != 'Y':
-                    return jsonify({"error": "Registration process not started."}), 400
-
-                update_regis_query = "UPDATE Citizen_list SET has_regis = 'N' WHERE National_ID = %s"
-                cursor.execute(update_regis_query, (national_id,))
-            con.commit()
-            return jsonify({
-                "error": "Registration session expired.",
-                "message": "Please restart the registration."
-            }), 410
-
-        except mysql.connector.Error as err:
-            con.rollback()
-            return jsonify({"error": "Database error during cleanup check.", "details": str(err)}), 500
-        except Exception as e:
-            return jsonify({"error": "An unexpected error occurred during resend check.", "details": str(e)}), 500
-
-    user_entry = temp_users[national_id]
-    phone_no = user_entry['data']['Phone_no']
-    timestamp = user_entry['timestamp']
-
-    if datetime.now() <= timestamp + timedelta(minutes = timeout_min):
-        return jsonify({
-            "error": "OTP is still valid.",
-            "message": "Please wait for the current OTP to expire before requesting a new one."
-        }), 429
-
-    new_otp = genOTP()
-    
-    otp_success = sentOTP(phone_no, new_otp)
-
-    if otp_success:
-        temp_users[national_id] = {
-            'data': user_entry['data'], 
-            'otp': new_otp, 
-            'timestamp': datetime.now()
-        }
-        return jsonify({"message": "New OTP sent successfully.", "id": national_id, "otp_sent": True}), 200
-    else:
-        return jsonify({"error": "Failed to send new OTP.", "otp_sent": False}), 500
 
 @app.route('/verify_otp', methods = ['POST'])
 def verify_otp():
@@ -360,10 +298,15 @@ def vote():
     voter_ID = get_jwt_identity()
     data = request.get_json()
 
+    print(voter_ID)
+    print(data)
+
     if not data or 'Candidate_ID' not in data:
         return jsonify({"error": "No Candidate has been chosen"}), 400
 
+    
     candidate_ID = data['Candidate_ID']
+    print(candidate_ID)
     
     try:
         if not con.is_connected():
