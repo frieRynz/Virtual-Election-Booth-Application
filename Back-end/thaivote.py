@@ -298,15 +298,12 @@ def vote():
     voter_ID = get_jwt_identity()
     data = request.get_json()
 
-    print(voter_ID)
-    print(data)
-
     if not data or 'Candidate_ID' not in data:
         return jsonify({"error": "No Candidate has been chosen"}), 400
 
     
     candidate_ID = data['Candidate_ID']
-    print(candidate_ID)
+    
     
     try:
         if not con.is_connected():
