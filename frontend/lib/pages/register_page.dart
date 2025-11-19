@@ -20,7 +20,7 @@ class _RegisterState extends State<RegisterPage> {
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmpassword = TextEditingController();
 
-  // If running Flask on your computer and testing on Android Emulator:
+  // If running Flask on computer + testing on Android Emulator:
   // final String api = "http://10.0.2.2:5000"; 
   // If testing on iOS Simulator or Web:
   final String api = "http://127.0.0.1:5000"; 
@@ -249,15 +249,15 @@ class _RegisterState extends State<RegisterPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text('Thai',style: TextStyle(
-                      fontSize:32, // Make it larger like a header
+                      fontSize:32, 
                       fontWeight: FontWeight.bold,
                       color : const Color.fromARGB(255, 245, 195, 137)
                     ),),
                    SizedBox(width: 10),
                     Image.asset(
                     'images/vote_icon.png',
-                    width: 80, // You can optionally set a width
-                    height: 80, // You can optionally set a height
+                    width: 80, 
+                    height: 80,
                   ),
                   ],),
                 )
