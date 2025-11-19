@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/hover_gradient_button.dart';
+import '/widgets/hover_gradient_button.dart';
 import '/services/auth_service.dart';
 import '/pages/login_or_register.dart';
 

@@ -1,4 +1,4 @@
-import 'package:frontend/widgets/hover_gradient_button.dart';
+import '/widgets/hover_gradient_button.dart';
 
 import '/pages/register_page.dart';
 import 'package:flutter/material.dart';
