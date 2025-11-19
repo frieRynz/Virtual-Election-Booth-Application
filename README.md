@@ -15,7 +15,8 @@ To these dart files :
 - home_screen.dart
 - OTP_page.dart
 - register_page.dart
-- auth_service.dart (services)
+- auth_service.dart (in the services folder /lib/services)
+  
 You can spot the *String api* line under the State's class initiation.
 
 Please add these lines to the line #60 in the *pubspec.yaml*, to allow our application logo to be shown.
