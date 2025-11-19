@@ -11,6 +11,7 @@ class _IneligibleState extends State<IneligiblePage> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
       title: Text('Ineligible page'),

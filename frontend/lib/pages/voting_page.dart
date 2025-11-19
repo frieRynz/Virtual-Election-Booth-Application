@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/widgets/hover_gradient_button.dart';
 import '/services/auth_service.dart';
 import '/pages/login_or_register.dart';
 
@@ -58,212 +59,204 @@ class _VotingPageState extends State<VotingPage> {
       setState(() {
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
         _isLoading = false;
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Vote Failed'),
+              content: const Text('You can only vote once!!'),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => LoginOrRegister()),
+                      (route) => false,
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        );
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Election Page'),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
+      backgroundColor: Color.fromARGB(255, 185, 209, 238),
+      
+      body: Stack(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  
-                  Column(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(width: 180,height: 180,color: Colors.green,
-                      child: Column(
-                        children: [
-                          Expanded(child: 
-                          Image.network('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png',
-                            fit: BoxFit.contain,
-                          ),),
-                          Text(
-                            'Mr. Bulbasaur',
-                            style: TextStyle(fontSize: 20, color: Colors.black),
-                          ),
-                          const SizedBox(height: 10),
-                        ]
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _selectCandidateButton('Candidate No.1', is1Checked,
-                                            (val) {
-                                                    setState(() {
-                                                      is1Checked = val!;
-                                                      if(is1Checked){
-                                                        is2Checked = false;
-                                                        is3Checked = false;
-                                                        is4Checked = false;
-                                                        _selectedCandidateId = 1;
-                                                      }
-                                                      } 
-                                                    );
-                                                    }),
-                    ],
-                  ),
-                  
-                  const SizedBox(width: 20),
+                      
+                      _candidateCard(id: 1, name: 'Mr. Bulbasuar',
+                       imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png', 
+                       bgColor: Colors.green.shade100),
 
-                  Column(
-                    children: [
-                      Container(width: 180,height: 180,color: Colors.red[200],
-                      child: Column(
-                        children: [
-                          Expanded(child: 
-                          Image.network('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png',
-                            fit: BoxFit.contain,
-                          ),),
-                          Text(
-                            'Mr.Charmander',
-                            style: TextStyle(fontSize: 20, color: Colors.black),
-                          ),
-                          const SizedBox(height: 10),
-                        ]
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _selectCandidateButton('Candidate No.2', is2Checked,
-                                            (val) {
-                                              setState(() {
-                                                      is2Checked = val!;
-                                                      if(is2Checked){
-                                                        is1Checked = false;
-                                                        is3Checked = false;
-                                                        is4Checked = false;
-                                                        _selectedCandidateId = 2;
-                                                      }
-                                                      } 
-                                                    );
-                                              }),
+                      const SizedBox(width: 20),
+
+                      _candidateCard(id: 2, name: 'Mr. Charmander',
+                       imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png', 
+                       bgColor: Colors.red.shade100),
+
                     ],
                   ),
 
+                  const SizedBox(height: 20),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+
+                      _candidateCard(id: 3, name: 'Mr. Squirtle',
+                       imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png', 
+                       bgColor: Colors.blue.shade100),
+
+                      const SizedBox(width: 20),
+
+                      _candidateCard(id: 4, name: 'Mr. Pikachu',
+                       imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png', 
+                       bgColor: Colors.yellow.shade100),
+                      
+                    ],
+                  ),
+
+                  SizedBox(height: 35),
+
+                  _comfirmCandidateButton('Confirm'),
                 ],
               ),
-
-              const SizedBox(height: 20),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-
-                  Column(
-                    children: [
-                      Container(width: 180,height: 180,color: Colors.blue[50],
-                      child: Column(
-                        children: [
-                          Expanded(child: 
-                          Image.network('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png',
-                            fit: BoxFit.contain,
-                          ),),
-                          Text(
-                            'Mr.Squirtle',
-                            style: TextStyle(fontSize: 20, color: Colors.black),
-                          ),
-                          const SizedBox(height: 10),
-                        ]
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _selectCandidateButton('Candidate No.3', is3Checked,
-                                            (val) {
-                                              setState(() {
-                                                      is3Checked = val!;
-                                                      if(is3Checked){
-                                                        is1Checked = false;
-                                                        is2Checked = false;
-                                                        is4Checked = false;
-                                                        _selectedCandidateId = 3;
-                                                      }
-                                                      } 
-                                                    );
-                                              }),
-                    ],
-                  ),
-
-                  const SizedBox(width: 20),
-
-                  Column(
-                    children: [
-                      Container(width: 180,height: 180,color: Colors.yellow,
-                      child: Column(
-                        children: [
-                          Expanded(child: 
-                          Image.network('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png',
-                            fit: BoxFit.contain,
-                          ),),
-                          Text(
-                            'Mr.Pikachu',
-                            style: TextStyle(fontSize: 20, color: Colors.black),
-                          ),
-                          const SizedBox(height: 10),
-                        ]
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _selectCandidateButton('Candidate No.4', is4Checked,
-                                            (val) {
-                                              setState(() {
-                                                      is4Checked = val!;
-                                                      if(is4Checked){
-                                                        is1Checked = false;
-                                                        is2Checked = false;
-                                                        is3Checked = false;
-                                                        _selectedCandidateId = 4;
-                                                      }
-                                                      } 
-                                                    );
-                                              }
-                                            ),
-                    ],
-                  ),
-
-                ],
-              ),
-
-              // SizedBox(height: 20),
-
-              _comfirmCandidateButton('Confirm'),
-            ],
+            ),
           ),
-        ),
+          Positioned(
+              top: 0,
+              left: (screenWidth - (screenWidth * 0.8)) / 2,
+              width: screenWidth * 0.8,
+              child: Container(
+                height: 95,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF1E3C72), Color(0xFF2A5298)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    ),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(50),
+                    bottomRight: Radius.circular(50)
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                    color: Colors.black,
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
+                  ],
+                ),
+                child:Center(
+                  child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Thai',style: TextStyle(
+                      fontSize:32, // Make it larger like a header
+                      fontWeight: FontWeight.bold,
+                      color : const Color.fromARGB(255, 245, 195, 137)
+                    ),),
+                   SizedBox(width: 10),
+                    Image.asset(
+                    'images/vote_icon.png',
+                    width: 80, // You can optionally set a width
+                    height: 80, // You can optionally set a height
+                  ),
+                  ],),
+                )
+              ),
+            ),
+        ],
       ),
     );
   }
 
   Widget _comfirmCandidateButton(String label) {
-    return ElevatedButton(
-      onPressed: () {_handleVote(_selectedCandidateId);},
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 32.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-      ),
-      child: Text(label, style: const TextStyle(fontSize: 16)),
-    );
+    return HoverGradientButton(text: label, onPressed: () {_handleVote(_selectedCandidateId);});
+  }
+
+  Widget _candidateCard({required int id, required String name, required String imageUrl, required Color bgColor}){
+    bool isSelected = _selectedCandidateId == id;
+    return Column(
+                  children: [
+                    Container(width: 160,height: 160,
+                      decoration: BoxDecoration(
+                        color: bgColor, //
+                        border: Border.all(
+                          color: Colors.black, 
+                          width: 1.5,
+                        ),
+                         borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20)
+                        ),
+                      ),
+                      child: Column(
+                          children: [
+                              Expanded(child: 
+                              Image.network(imageUrl,
+                                fit: BoxFit.contain,
+                              ),),
+                              Text(
+                                name,
+                                style: TextStyle(fontSize: 20, color: Colors.black),
+                              ),
+                              const SizedBox(height: 10),
+                            ]
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        _selectCandidateButton('Candidate No.$id'
+                                                ,isSelected,
+                                                (val) {
+                                                  setState(() {
+                                                    _selectedCandidateId = (val == true) ? id : 0;
+                                                  });
+                                                }),
+                        ],
+                      );
   }
 
     Widget _selectCandidateButton(String label, bool option, Function(bool?) onChanged){
-      return SizedBox(
+      return Container(
         width:180,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20)
+                        ),
+        ),
         child:CheckboxListTile(
             title: Text(label, style: const TextStyle(fontSize: 16)),
             value: option,
             visualDensity: VisualDensity(horizontal: -4, vertical: -4),
             contentPadding: EdgeInsets.all(8),
+            activeColor: const Color(0xFF1E3C72),
             onChanged: onChanged,
           )
       );
