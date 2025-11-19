@@ -4,8 +4,8 @@ To develop a program to simulate a real online voting (like prime minister or pr
 # Frontend Setup
 1) Please make sure that your device has Dart, Flutter, and VsCode installed on your device.
 - To get started, open the VsCode, and type Ctrl + Shift + P and select 'New Flutter Project'
-- After that, copy everything inside the lib folder located in our frontend folder, and paste it to your flutter project folder. This is the clear directory for it : /frontend/lib
-- Then, copy the whole 'assets' folder located in our frontend folder, and paste it in youe flutter project folder: /frontend/assets/images
+- After that, copy everything inside the lib folder located in our frontend folder, and paste it to your flutter project folder. This is the clear directory for it: `/frontend/lib`
+- Then, copy the whole 'assets' folder located in our frontend folder, and paste it in youe flutter project folder: `/frontend/assets/images`
 
 2) Please add these lines to the line #60 in the *pubspec.yaml*, to allow our application logo to be shown.
 ```
