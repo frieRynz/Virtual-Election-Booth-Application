@@ -37,9 +37,19 @@ flutter pub add http
 ```
 
 # Backend Setup
-Please use this command to install all of the dependencies for the backend.
+1) Please use this command to install all of the dependencies for the backend.
 ```
 pip install requirements.txt
+```
+
+2) Create a .env file inside the backend folder with these following lines of code : 
+```
+user=thaiVote
+password=12345678@
+host=localhost 
+dbname=virtual_elec_booth
+
+SECRET_KEY="9ffea8ed6000588278edc942e403fa0879a341bc124f47b3"
 ```
 
 # Database Setup

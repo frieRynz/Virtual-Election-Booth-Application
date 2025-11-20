@@ -8,24 +8,28 @@ from datetime import date, datetime, timedelta
 import sys
 import random
 import json
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True, expose_headers=["Authorization"], allow_headers=["Authorization", "Content-Type"])
 bcrypt = Bcrypt(app)
 
-app.config["JWT_SECRET_KEY"] = "9ffea8ed6000588278edc942e403fa0879a341bc124f47b3"
+app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY")
+
 
 jwt = JWTManager(app)
 
 temp_users = {}
 timeout_min = 1
-
 try:
     con = mysql.connector.connect(
-        host = 'localhost',
-        user = 'thaiVote',
-        password = '12345678@',
-        database = 'virtual_elec_booth'
+        host = os.getenv("host"),   
+        user = os.getenv("user"),
+        password = os.getenv("password"),
+        database = os.getenv("dbname")
     )
     if con.is_connected():
         print("Successfully connected to DB.")
